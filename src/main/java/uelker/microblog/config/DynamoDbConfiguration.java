@@ -26,7 +26,7 @@ public class DynamoDbConfiguration {
     @Value("${aws.region}")
     private String region;
 
-    @Value("${post.tableName}")
+    @Value("${aws.postTable}")
     private String postTableName;
 
     @Bean
