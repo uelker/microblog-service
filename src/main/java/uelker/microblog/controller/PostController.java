@@ -1,5 +1,6 @@
 package uelker.microblog.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,6 +21,7 @@ public class PostController {
 
     @GetMapping("/{id}")
     public ResponsePostDto getPost(@PathVariable("id") String id) {
+        System.out.println("get post: " + id);
         Post post = postRepository.getPost(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
@@ -28,7 +30,8 @@ public class PostController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public ResponsePostDto createPost(@RequestBody CreatePostDto postDto) {
+    public ResponsePostDto createPost(@RequestBody @Valid CreatePostDto postDto) {
+        System.out.println("create post: " + postDto);
         Post post = postRepository.createPost(postDto);
 
         return mapToDto(post);
@@ -36,6 +39,7 @@ public class PostController {
 
     @PatchMapping("/{id}")
     public ResponsePostDto updatePost(@PathVariable("id") String id, @RequestBody UpdatePostDto postDto) {
+        System.out.println("update post: " + postDto);
         Post post = postRepository.updatePost(id, postDto);
 
         return mapToDto(post);
@@ -44,6 +48,7 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void deletePost(@PathVariable("id") String id) {
+        System.out.println("delete post: " + id);
         postRepository.deletePost(id);
     }
 
