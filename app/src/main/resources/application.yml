@@ -3,6 +3,8 @@ server:
   error:
     include-message: always
     include-binding-errors: always
+  servlet:
+    context-path: /microblog-service
 
 spring:
   main:
@@ -10,5 +12,5 @@ spring:
     log-startup-info: false
 
 aws:
-  region: eu-central-1
-  postTable: Posts
+  region: ${AWS_REGION:eu-central-1}
+  postTable: ${POST_TABLE:Posts}

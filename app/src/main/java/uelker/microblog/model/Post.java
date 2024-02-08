@@ -10,7 +10,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 
 import java.time.LocalDateTime;
 
-
 @DynamoDbBean
 @Data
 @Builder

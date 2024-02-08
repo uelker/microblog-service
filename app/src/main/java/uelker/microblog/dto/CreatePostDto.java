@@ -6,12 +6,10 @@ import uelker.microblog.model.Status;
 
 public record CreatePostDto
         (
-                @NotBlank(message = "Title cannot be blank")
+                @NotBlank()
                 String title,
-
-                @NotBlank(message = "Content cannot be blank")
+                @NotBlank()
                 String content,
-
                 @NotNull
                 Status status) {
 }

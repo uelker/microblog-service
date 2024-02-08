@@ -6,13 +6,13 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>uelker</groupId>
-    <artifactId>microblog</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>microblog</name>
-    <description>A Simple Blog API</description>
+    <artifactId>microblog-service</artifactId>
+    <version>1.0.0</version>
+    <name>microblog-service</name>
+    <description>A microblog-service that provides an API for creating blog posts</description>
     <properties>
         <java.version>21</java.version>
         <dynamodb-enhanced.version>2.23.12</dynamodb-enhanced.version>
@@ -23,19 +23,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>dynamodb-enhanced</artifactId>
             <version>${dynamodb-enhanced.version}</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -43,7 +39,6 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -52,5 +47,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
