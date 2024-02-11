@@ -43,8 +43,6 @@ resource "aws_route_table" "second" {
   tags = {
     Name = "microblog-ec2-public-rt"
   }
-
-  depends_on = [aws_internet_gateway.igw]
 }
 
 resource "aws_route_table_association" "public_subnet" {
@@ -203,8 +201,8 @@ resource "aws_launch_template" "ecs" {
 resource "aws_autoscaling_group" "ecs" {
   name                  = "microblog-ecs-asg"
   vpc_zone_identifier   = aws_subnet.public_subnets[*].id
-  desired_capacity      = 2
-  min_size              = 2
+  desired_capacity      = 0
+  min_size              = 0
   max_size              = var.asg_max_size
   protect_from_scale_in = true
 
@@ -346,7 +344,7 @@ resource "aws_ecs_service" "microblog" {
   name            = "microblog-service"
   cluster         = aws_ecs_cluster.microblog_service.id
   task_definition = aws_ecs_task_definition.microblog_service.arn
-  desired_count   = 0
+  desired_count   = 2
 
   capacity_provider_strategy {
     capacity_provider = aws_ecs_capacity_provider.ecs_cap.name

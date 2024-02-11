@@ -14,34 +14,44 @@ noSQL Amazon DynamoDB database.
 - Docker-API compatible container runtime such as Podman or Docker
 - Terraform
 - AWS credentials configured with necessary permissions
-- DynamoDB table (*Posts*) with primary key "id"
-- S3 Bucket (*microblog-service-infrastructure-state*) for storing the terraform state file
-- ECR Repository (*microblog-service*) for storing the container image
 
-### Build the application locally
+## Build the application locally
 
 ```bash
 cd app
 ./mvnw -Pnative native:compile
 ```
 
+## Deploy the application to AWS
+
+### Create s3 bucket for terraform state file
+
+```bash
+cd infrastructure
+./create-s3-bucket.sh
+```
+
+### Create ECR Repository and DynamoDB Table
+
+```bash
+cd infrastructure/shared
+terraform init
+terraform apply
+```
+
 ### Build the container image and push it to the ECR repository
 
 ```bash
+cd app
 # Authenticate to your default registry
 aws ecr get-login-password --region region | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.eu-central-1.amazonaws.com
-
 # Create a Docker image
 docker build --build-arg APP_FILE=microblog-service -t microblog-service:latest .
-
 # Tag the image to push to your repository
 docker tag microblog-service:latest aws_account_id.dkr.ecr.region.amazonaws.com/microblog-service:latest
-
 # Push the image
 docker push aws_account_id.dkr.ecr.region.amazonaws.com/microblog-service:latest
 ```
-
-## Deploy the application to AWS
 
 To deploy the application as zip file to AWS Lambda, save the path to the native image and pass it to the terraform
 variable *source_file*
