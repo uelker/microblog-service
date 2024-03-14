@@ -1,0 +1,37 @@
+@url =
+
+### Healthcheck
+GET {{url}}/microblog-service/healthcheck
+Accept: application/json
+
+### Create an unpublished post
+POST {{url}}/microblog-service/post-api/v1/posts
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "ECS vs. Lambda",
+  "content": "In this blog post, we will talk about the pros and cons of Amazon Elastic Container Services (ECS) and AWS Lambda.",
+  "status": "IN_PROGRESS"
+}
+
+> {%
+    client.global.set("postId", response.body.id);
+%}
+
+### Read a post
+GET {{url}}/microblog-service/post-api/v1/posts/{{postId}}
+Accept: application/json
+
+### Publish a post
+PATCH {{url}}/microblog-service/post-api/v1/posts/{{postId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "status": "PUBLISHED"
+}
+
+### Remove a post
+DELETE {{url}}/microblog-service/post-api/v1/posts/{{postId}}
+Accept: application/json
