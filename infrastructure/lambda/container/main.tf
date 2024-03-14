@@ -1,5 +1,3 @@
-#  Role and policies for lambda function to write logs and access database
-
 data "aws_iam_policy_document" "assume_role" {
   statement {
     effect  = "Allow"
@@ -30,8 +28,6 @@ resource "aws_iam_role_policy_attachment" "policy_attachment" {
   policy_arn = each.key
 }
 
-# Lambda function to run the microblog-service
-
 resource "aws_lambda_function" "microblog_service" {
   function_name = "microblog-service-container"
   image_uri     = var.image_url
@@ -40,8 +36,6 @@ resource "aws_lambda_function" "microblog_service" {
   timeout       = 30
   memory_size   = var.function_memory
 }
-
-# Lambda function url to access the microblog-service
 
 resource "aws_lambda_function_url" "microblog_service" {
   function_name      = aws_lambda_function.microblog_service.function_name

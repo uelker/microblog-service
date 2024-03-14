@@ -7,5 +7,5 @@ WORKDIR /app
 ARG APP_FILE
 EXPOSE 8080
 
-COPY target/${APP_FILE} /app/microblog
-ENTRYPOINT ["./microblog"]
+COPY target/${APP_FILE} /app/microblog-service
+ENTRYPOINT ["./microblog-service"]

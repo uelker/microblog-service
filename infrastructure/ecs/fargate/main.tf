@@ -116,6 +116,11 @@ resource "aws_alb_target_group" "microblog" {
 
 resource "aws_ecs_cluster" "microblog_service" {
   name = "microblog-fargate-cluster"
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
 
 data "aws_iam_policy_document" "assume_role" {
@@ -186,10 +191,8 @@ resource "aws_security_group" "task_sg" {
 
 resource "aws_cloudwatch_log_group" "microblog" {
   name              = "/aws/ecs/microblog-service/fargate"
-  retention_in_days = var.service_log_retention
+  retention_in_days = 30
 }
-
-## ECS Task Definition and Service
 
 data "aws_region" "current" {}
 
@@ -231,7 +234,7 @@ resource "aws_ecs_task_definition" "microblog" {
 }
 
 resource "aws_ecs_service" "microblog" {
-  name            = "microblog-service"
+  name            = "microblog-service-fargate"
   cluster         = aws_ecs_cluster.microblog_service.id
   task_definition = aws_ecs_task_definition.microblog.arn
   desired_count   = 2
@@ -269,7 +272,9 @@ resource "aws_appautoscaling_policy" "microblog_service_cpu" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
-    target_value = 50
+    target_value       = 50
+    scale_in_cooldown  = 120
+    scale_out_cooldown = 120
   }
 }
 
@@ -284,6 +289,9 @@ resource "aws_appautoscaling_policy" "microblog_service_memory" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
-    target_value = 50
+    target_value       = 50
+    scale_in_cooldown  = 120
+    scale_out_cooldown = 120
+
   }
 }

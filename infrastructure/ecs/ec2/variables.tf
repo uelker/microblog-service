@@ -22,12 +22,6 @@ variable "asg_max_size" {
   default     = 5
 }
 
-variable "service_log_retention" {
-  description = "The log retention period for the microblog-service"
-  type        = number
-  default     = 7
-}
-
 variable "image_url" {
   description = "The URL of the microblog-service image"
   type        = string

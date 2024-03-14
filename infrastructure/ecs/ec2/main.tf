@@ -43,6 +43,8 @@ resource "aws_route_table" "second" {
   tags = {
     Name = "microblog-ec2-public-rt"
   }
+
+  depends_on = [aws_internet_gateway.igw]
 }
 
 resource "aws_route_table_association" "public_subnet" {
@@ -98,10 +100,11 @@ resource "aws_alb_listener" "microblog" {
 }
 
 resource "aws_alb_target_group" "microblog" {
-  name     = "microblog-ec2-alb-tg"
-  vpc_id   = aws_vpc.main.id
-  port     = 80
-  protocol = "HTTP"
+  name        = "microblog-ec2-alb-tg"
+  vpc_id      = aws_vpc.main.id
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "instance"
 
   health_check {
     path = "/microblog-service/healthcheck"
@@ -109,8 +112,6 @@ resource "aws_alb_target_group" "microblog" {
 }
 
 # Auto Scaling Group
-
-## Role to allow EC2 instances to register with ECS cluster
 
 data "aws_iam_policy_document" "ec2_assume_role" {
   statement {
@@ -142,8 +143,6 @@ resource "aws_iam_instance_profile" "ec2_instance" {
   role = aws_iam_role.ec2_instance.name
 }
 
-## Security Group to allow traffic from ALB
-
 resource "aws_security_group" "asg" {
   name        = "microblog-ec2-asg-sg"
   description = "Security group for EC2 instances in ECS cluster"
@@ -169,8 +168,6 @@ resource "aws_security_group" "asg" {
     Name = "microblog-ec2-asg-sg"
   }
 }
-
-## Launch Template and Auto Scaling Group
 
 data "aws_ami" "amazon_linux_ecs_optimized_2023" {
   most_recent = true
@@ -222,9 +219,12 @@ resource "aws_autoscaling_group" "ecs" {
 
 resource "aws_ecs_cluster" "microblog_service" {
   name = "microblog-ec2-cluster"
-}
 
-## Capacity Provider
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
 
 resource "aws_ecs_capacity_provider" "ecs_cap" {
   name = "microblog-capacity-provider"
@@ -252,8 +252,6 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_caps" {
     capacity_provider = aws_ecs_capacity_provider.ecs_cap.name
   }
 }
-
-## Roles and Policies for ECS Task
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -295,14 +293,10 @@ resource "aws_iam_role_policy_attachment" "ecs_task_role_attach" {
   policy_arn = data.aws_iam_policy.dynamodb_full_access.arn
 }
 
-## CloudWatch Log Group
-
 resource "aws_cloudwatch_log_group" "microblog" {
   name              = "/aws/ecs/microblog-service/ec2"
-  retention_in_days = var.service_log_retention
+  retention_in_days = 30
 }
-
-## ECS Task Definition and Service
 
 data "aws_region" "current" {}
 
@@ -341,7 +335,7 @@ resource "aws_ecs_task_definition" "microblog_service" {
 }
 
 resource "aws_ecs_service" "microblog" {
-  name            = "microblog-service"
+  name            = "microblog-service-ec2"
   cluster         = aws_ecs_cluster.microblog_service.id
   task_definition = aws_ecs_task_definition.microblog_service.arn
   desired_count   = 2
@@ -383,7 +377,9 @@ resource "aws_appautoscaling_policy" "microblog_service_cpu" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
-    target_value = 50
+    target_value       = 50
+    scale_in_cooldown  = 120
+    scale_out_cooldown = 120
   }
 }
 
@@ -398,6 +394,8 @@ resource "aws_appautoscaling_policy" "microblog_service_memory" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
-    target_value = 50
+    target_value       = 50
+    scale_in_cooldown  = 120
+    scale_out_cooldown = 120
   }
 }

@@ -1,12 +1,8 @@
-# Zip the microblog-service for lambda function
-
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_file = var.source_file
   output_path = "./lambda.zip"
 }
-
-#  Role and policies for lambda function to write logs and access database
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -38,8 +34,6 @@ resource "aws_iam_role_policy_attachment" "policy_attachment" {
   policy_arn = each.key
 }
 
-# Lambda function to run the microblog-service
-
 resource "aws_lambda_function" "microblog_service" {
   filename      = data.archive_file.lambda_zip.output_path
   function_name = "microblog-service-zip"
@@ -50,8 +44,6 @@ resource "aws_lambda_function" "microblog_service" {
   timeout       = 30
   memory_size   = var.function_memory
 }
-
-# Lambda function url to access the microblog-service
 
 resource "aws_lambda_function_url" "microblog_service" {
   function_name      = aws_lambda_function.microblog_service.function_name
